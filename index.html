@@ -8,11 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            /* Palet Warna Modern */
-            --primary-green: #10b981; /* Emerald green muda yang segar */
+            --primary-green: #10b981;
             --primary-hover: #059669;
             --light-green: #d1fae5;
-            --dark-bg: #1f2937; /* Hitam pendukung yang elegan */
+            --dark-bg: #1f2937;
             --bg-app: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #111827;
@@ -36,156 +35,56 @@
             margin-bottom: 25px;
         }
 
-        .header-app h1 {
-            color: var(--primary-green);
-            font-weight: 800;
-            margin: 0;
-            font-size: 32px;
-        }
+        .header-app h1 { color: var(--primary-green); font-weight: 800; margin: 0; font-size: 32px; }
+        .header-app p { color: var(--text-muted); margin: 5px 0 0 0; font-weight: 600; }
 
-        .header-app p {
-            color: var(--text-muted);
-            margin: 5px 0 0 0;
-            font-weight: 600;
-        }
-
-        /* Container untuk Form Input */
         .controls {
             background: var(--card-bg);
             padding: 30px;
-            border-radius: 20px; /* Lebih membulat */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); /* Bayangan lembut */
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             margin-bottom: 40px;
             width: 100%;
             max-width: 900px;
             box-sizing: border-box;
         }
 
-        .row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
+        .row { display: flex; gap: 20px; margin-bottom: 20px; }
+        @media (max-width: 768px) { .row { flex-direction: column; gap: 15px; } }
 
-        @media (max-width: 768px) {
-            .row { flex-direction: column; gap: 15px; }
-        }
+        .input-group { flex: 1; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--dark-bg); font-size: 14px; }
 
-        .input-group {
-            flex: 1;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 700;
-            color: var(--dark-bg);
-            font-size: 14px;
-        }
-
-        /* Styling Input yang modern */
         .input-group input, .input-group textarea, .student-entry input, .student-entry textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            box-sizing: border-box;
-            font-family: 'Nunito', sans-serif;
-            font-size: 15px;
-            background-color: #f9fafb;
-            transition: all 0.3s ease;
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--border-color);
+            border-radius: 12px; box-sizing: border-box; font-family: 'Nunito', sans-serif;
+            font-size: 15px; background-color: #f9fafb; transition: all 0.3s ease;
         }
 
         .input-group input:focus, .input-group textarea:focus, .student-entry input:focus, .student-entry textarea:focus {
-            outline: none;
-            border-color: var(--primary-green);
-            background-color: #ffffff;
+            outline: none; border-color: var(--primary-green); background-color: #ffffff;
             box-shadow: 0 0 0 4px var(--light-green);
         }
 
-        /* Area Data Anak */
-        .section-title {
-            font-weight: 800;
-            font-size: 18px;
-            margin: 25px 0 15px 0;
-            color: var(--dark-bg);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-        }
+        .section-title { font-weight: 800; font-size: 18px; margin: 25px 0 15px 0; color: var(--dark-bg); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
 
-        .student-entry {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: flex-start;
-            background: #fdfdfd;
-            padding: 15px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
+        .student-entry { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; background: #fdfdfd; padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); }
         .student-entry input { flex: 1; }
-        .student-entry textarea {
-            flex: 2.5;
-            resize: vertical;
-            min-height: 50px;
-        }
+        .student-entry textarea { flex: 2.5; resize: vertical; min-height: 50px; }
 
-        /* Styling Tombol */
-        button {
-            font-family: 'Nunito', sans-serif;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 15px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        button { font-family: 'Nunito', sans-serif; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 15px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        button.add-btn { background-color: var(--light-green); color: var(--primary-hover); width: auto; margin-bottom: 20px; }
+        button.add-btn:hover { background-color: #a7f3d0; }
+        button.download-btn { background-color: var(--dark-bg); color: white; width: 100%; font-size: 18px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button.download-btn:hover { background-color: #111827; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 
-        button.add-btn {
-            background-color: var(--light-green);
-            color: var(--primary-hover);
-            width: auto;
-            margin-bottom: 20px;
-        }
+        .preview-wrapper { width: 100%; max-width: 1000px; overflow-x: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-        button.add-btn:hover {
-            background-color: #a7f3d0;
-        }
-
-        button.download-btn {
-            background-color: var(--dark-bg);
-            color: white;
-            width: 100%;
-            font-size: 18px;
-            padding: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        button.download-btn:hover {
-            background-color: #111827;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Container Preview yang scrollable jika layar kecil */
-        .preview-wrapper {
-            width: 100%;
-            max-width: 1000px;
-            overflow-x: auto;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        /* Container Report yang akan di-download (Ukuran Tetap) */
+        /* PERBAIKAN DI SINI: height menjadi fit-content dan min-height diterapkan */
         #report-preview {
             width: 1000px;
-            height: 562px; /* Rasio 16:9 */
+            min-height: 562px; /* Menjaga rasio awal jika kosong */
+            height: fit-content; /* Otomatis memanjang jika tabel penuh */
             background-color: white;
             position: relative;
             overflow: hidden;
@@ -194,149 +93,36 @@
             box-sizing: border-box;
         }
 
-        /* Elemen Dekorasi (Blob Shapes) */
-        .shape-top-left {
-            position: absolute;
-            top: -60px;
-            left: -60px;
-            width: 300px;
-            height: 300px;
-            background-color: var(--primary-green);
-            border-radius: 43% 57% 65% 35% / 45% 52% 48% 55%;
-            z-index: 1;
-        }
+        .shape-top-left { position: absolute; top: -60px; left: -60px; width: 300px; height: 300px; background-color: var(--primary-green); border-radius: 43% 57% 65% 35% / 45% 52% 48% 55%; z-index: 1; }
+        
+        /* Dekorasi bawah diubah agar otomatis menempel di dasar meskipun ukuran memanjang */
+        .shape-bottom-left { position: absolute; bottom: -80px; left: -40px; width: 350px; height: 250px; background-color: var(--dark-bg); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; z-index: 1; }
+        .shape-top-right { position: absolute; top: -100px; right: -80px; width: 350px; height: 350px; background-color: var(--primary-green); border-radius: 50% 50% 30% 70% / 50% 30% 70% 50%; z-index: 1; opacity: 0.9; }
 
-        .shape-bottom-left {
-            position: absolute;
-            bottom: -80px;
-            left: -40px;
-            width: 350px;
-            height: 250px;
-            background-color: var(--dark-bg); /* Support warna hitam */
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            z-index: 1;
-        }
+        .report-content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; }
+        .header-section { margin-bottom: 25px; margin-left: 80px; }
+        .header-section h1 { font-size: 38px; margin: 0 0 5px 0; color: var(--dark-bg); font-weight: 800; letter-spacing: -0.5px; }
+        .header-section p { margin: 4px 0; font-size: 16px; color: #4b5563; font-weight: 600; }
 
-        .shape-top-right {
-            position: absolute;
-            top: -100px;
-            right: -80px;
-            width: 350px;
-            height: 350px;
-            background-color: var(--primary-green);
-            border-radius: 50% 50% 30% 70% / 50% 30% 70% 50%;
-            z-index: 1;
-            opacity: 0.9;
-        }
+        .main-content { display: flex; gap: 30px; height: 100%; align-items: stretch; }
+        .photo-section { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .photo-placeholder { flex: 1; min-height: 200px; background-color: #f3f4f6; background-size: cover; background-position: center; border-radius: 16px; border: 2px dashed #d1d5db; position: relative; }
+        .photo-placeholder.has-image { border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 
-        /* Konten Report */
-        .report-content {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+        .table-section { flex: 1.4; background: white; z-index: 3; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background-color: var(--dark-bg); color: white; padding: 14px 10px; font-weight: 700; text-align: center; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
+        td { padding: 15px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
 
-        .header-section {
-            margin-bottom: 25px;
-            margin-left: 80px; /* Menghindari dekorasi kiri atas */
-        }
-
-        .header-section h1 {
-            font-size: 38px;
-            margin: 0 0 5px 0;
-            color: var(--dark-bg);
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .header-section p {
-            margin: 4px 0;
-            font-size: 16px;
-            color: #4b5563;
-            font-weight: 600;
-        }
-
-        .main-content {
-            display: flex;
-            gap: 30px;
-            height: 100%;
-            align-items: stretch;
-        }
-
-        /* Bagian Foto */
-        .photo-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .photo-placeholder {
-            flex: 1;
-            background-color: #f3f4f6;
-            background-size: cover;
-            background-position: center;
-            border-radius: 16px; /* Lebih membulat */
-            border: 2px dashed #d1d5db;
-            position: relative;
-        }
-
-        /* Menghilangkan border dashed kalau ada foto */
-        .photo-placeholder.has-image {
-            border: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        /* Bagian Tabel */
-        .table-section {
-            flex: 1.4;
-            background: white;
-            z-index: 3;
-            border-radius: 16px;
-            overflow: hidden; /* Agar sudut tabel ikut melengkung */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: var(--dark-bg); /* Support warna hitam untuk header tabel */
-            color: white;
-            padding: 14px 10px;
-            font-weight: 700;
-            text-align: center;
-            text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 12px 15px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-main);
-        }
-
-        /* Menghilangkan border bawah di baris terakhir */
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Styling khusus kolom progress */
+        /* PERBAIKAN DI SINI: Mencegah teks kepotong dan otomatis turun (word wrap) */
         td:nth-child(2) {
             text-align: left;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #374151;
+            white-space: pre-wrap; /* Enter dari textarea akan terbaca */
+            word-wrap: break-word; /* Teks sangat panjang akan dipatahkan ke bawah */
         }
     </style>
 </head>
@@ -372,11 +158,9 @@
 
         <div class="section-title">Data Anak & Progress</div>
         
-        <div id="students-container">
-            </div>
+        <div id="students-container"></div>
         
         <button class="add-btn" onclick="addStudentInput()">➕ Tambah Anak</button>
-        
         <button class="download-btn" onclick="downloadReport()">📥 Download Report (PNG)</button>
     </div>
 
@@ -408,7 +192,7 @@
                                 </tr>
                             </thead>
                             <tbody id="preview-table-body">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -418,22 +202,19 @@
 
     <script>
         let students = [
-            { nama: "Aysha", progress: "Aysha hari ini belajar membuat game AR pada delightex dengan tema hewan. Lalu Aysha juga belajar mengenai logika drone pada Tynker. Aysha mengerjakan semua tugas dengan sangat baik." },
-            { nama: "Puan", progress: "Tidak Hadir (Izin)" },
-            { nama: "Kyle", progress: "Tidak Hadir (Izin)" }
+            { nama: "Aysha", progress: "Aysha hari ini belajar membuat game AR pada delightex dengan tema hewan. Lalu Aysha juga belajar mengenai logika drone pada Tynker.\n\nCatatan tambahan: Aysha mengerjakan semua tugas dengan sangat baik dan mulai mengerti konsep loop." },
+            { nama: "Puan", progress: "Tidak Hadir (Izin)" }
         ];
 
-        // Format tanggal ke dd-mm-yyyy
         function formatTanggal(dateStr) {
             if (!dateStr) return "";
             const d = new Date(dateStr);
             const hari = String(d.getDate()).padStart(2, '0');
-            const bulan = String(d.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+            const bulan = String(d.getMonth() + 1).padStart(2, '0');
             const tahun = d.getFullYear();
             return `${hari}-${bulan}-${tahun}`;
         }
 
-        // Render input form saat pertama kali dimuat
         function renderInputs() {
             const container = document.getElementById('students-container');
             container.innerHTML = '';
@@ -442,33 +223,35 @@
                     <div class="student-entry">
                         <input type="text" placeholder="Nama Panggilan" value="${student.nama}" onkeyup="updateData(${index}, 'nama', this.value)">
                         <textarea placeholder="Ceritakan progress hari ini..." onkeyup="updateData(${index}, 'progress', this.value)">${student.progress}</textarea>
+                        <button onclick="removeStudent(${index})" style="background: #ef4444; color: white; padding: 12px; min-width: 45px;">🗑️</button>
                     </div>
                 `;
             });
             updatePreviewTable();
         }
 
-        // Tambah baris input anak baru
         function addStudentInput() {
             students.push({ nama: "", progress: "" });
             renderInputs();
         }
 
-        // Update data di array saat diketik
+        // Tambahan fitur untuk menghapus baris jika kelebihan
+        function removeStudent(index) {
+            students.splice(index, 1);
+            renderInputs();
+        }
+
         function updateData(index, field, value) {
             students[index][field] = value;
             updatePreviewTable();
         }
 
-        // Update teks Kelas dan Tanggal secara real-time
         function updatePreview() {
             document.getElementById('preview-kelas').innerText = document.getElementById('input-kelas').value;
-            
             const tanggalMentah = document.getElementById('input-tanggal').value;
             document.getElementById('preview-tanggal').innerText = formatTanggal(tanggalMentah);
         }
 
-        // Update isi tabel pada preview secara real-time
         function updatePreviewTable() {
             const tbody = document.getElementById('preview-table-body');
             tbody.innerHTML = '';
@@ -484,7 +267,6 @@
             });
         }
 
-        // Menampilkan preview foto yang diupload
         function previewImage(event, elementId) {
             const file = event.target.files[0];
             if (file) {
@@ -492,36 +274,38 @@
                 const element = document.getElementById(elementId + '-preview');
                 reader.onload = function(e) {
                     element.style.backgroundImage = `url(${e.target.result})`;
-                    element.classList.add('has-image'); // Menghilangkan border dashed
+                    element.classList.add('has-image');
                 }
                 reader.readAsDataURL(file);
             }
         }
 
-        // Fungsi Download HTML ke PNG menggunakan html2canvas
         function downloadReport() {
             const previewElement = document.getElementById('report-preview');
             const btn = document.querySelector('.download-btn');
             const originalText = btn.innerHTML;
             
-            // Efek loading pada tombol
             btn.innerHTML = "⏳ Sedang Memproses...";
             btn.style.backgroundColor = "#4b5563";
             
-            html2canvas(previewElement, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+            // PERBAIKAN DI SINI: Menambahkan konfigurasi window agar canvas membaca seluruh tinggi elemen, bukan hanya yang tampil di layar
+            html2canvas(previewElement, { 
+                scale: 2, 
+                useCORS: true, 
+                backgroundColor: "#ffffff",
+                scrollY: -window.scrollY // Mencegah bug kepotong saat di-scroll
+            }).then(canvas => {
                 const link = document.createElement('a');
                 const kelas = document.getElementById('input-kelas').value.replace(/ /g, "_");
                 link.download = `Progress_${kelas}.png`;
                 link.href = canvas.toDataURL("image/png");
                 link.click();
 
-                // Kembalikan tombol seperti semula
                 btn.innerHTML = originalText;
                 btn.style.backgroundColor = "";
             });
         }
 
-        // Inisialisasi awal
         renderInputs();
         updatePreview();
     </script>
