@@ -378,21 +378,19 @@
         /* Body */
         .rpt-body {
             display: flex;
-            gap: 28px;
-            align-items: flex-start; /* KEY: tidak stretch sehingga foto tidak membesar */
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Photo column — fixed width, fixed photo heights */
+        /* Photo row — dua foto sejajar di atas */
         .rpt-photos {
-            width: 230px;
-            flex-shrink: 0;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 16px;
         }
         .rpt-photo-wrap {
-            width: 230px;
-            height: 165px;          /* FIXED HEIGHT – tidak berubah */
+            flex: 1;
+            height: 220px;          /* FIXED HEIGHT – lebih tinggi karena lebarnya full */
             border-radius: 14px;
             overflow: hidden;
             background: var(--g50);
@@ -424,10 +422,9 @@
         }
         .photo-empty-label .icon { font-size: 28px; }
 
-        /* Table column */
+        /* Table */
         .rpt-table-wrap {
-            flex: 1;
-            min-width: 0;
+            width: 100%;
             background: var(--white);
             border-radius: 14px;
             overflow: hidden;
@@ -850,40 +847,37 @@ async function downloadPDF() {
         doc.setLineWidth(0.5);
         doc.line(14, 59, W - 14, 59);
 
-        /* ── Photos ── */
-        const PHOTO_X = 14;
-        const PHOTO_W = 60;
-        const PHOTO_H = 42;
-        const PHOTO_Y1 = 64;
-        const PHOTO_Y2 = PHOTO_Y1 + PHOTO_H + 6;
-
-        doc.setDrawColor(...G_MED);
-        doc.setLineWidth(0.4);
+        /* ── Photos: dua foto berdampingan di atas ── */
+        const MARGIN     = 14;
+        const GAP        = 8;
+        const PHOTO_W    = (W - MARGIN * 2 - GAP) / 2;
+        const PHOTO_H    = 52;
+        const PHOTO_Y    = 64;
 
         for (let i = 1; i <= 2; i++) {
-            const y = i === 1 ? PHOTO_Y1 : PHOTO_Y2;
+            const px  = MARGIN + (i - 1) * (PHOTO_W + GAP);
             const src = photoData['photo' + i];
             if (src) {
                 const fmt = src.startsWith('data:image/png') ? 'PNG' : 'JPEG';
-                doc.addImage(src, fmt, PHOTO_X, y, PHOTO_W, PHOTO_H);
+                doc.addImage(src, fmt, px, PHOTO_Y, PHOTO_W, PHOTO_H);
             } else {
                 doc.setFillColor(...G_LIGHT);
-                doc.roundedRect(PHOTO_X, y, PHOTO_W, PHOTO_H, 3, 3, 'F');
+                doc.roundedRect(px, PHOTO_Y, PHOTO_W, PHOTO_H, 3, 3, 'F');
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(9);
                 doc.setTextColor(...MUTED);
-                doc.text(`Foto ${i} belum diupload`, PHOTO_X + PHOTO_W / 2, y + PHOTO_H / 2, { align: 'center' });
+                doc.text(`Foto ${i} belum diupload`, px + PHOTO_W / 2, PHOTO_Y + PHOTO_H / 2, { align: 'center' });
             }
         }
 
-        /* ── Table ── */
-        const TABLE_X    = PHOTO_X + PHOTO_W + 10;
-        const TABLE_W    = W - TABLE_X - 14;
-        const COL_NAME_W = 38;
+        /* ── Table: di bawah foto ── */
+        const TABLE_X    = MARGIN;
+        const TABLE_W    = W - MARGIN * 2;
+        const COL_NAME_W = 50;
         const COL_PROG_W = TABLE_W - COL_NAME_W;
 
         // Table header
-        let rowY = 64;
+        let rowY = PHOTO_Y + PHOTO_H + 8;
         const HEADER_H = 10;
         doc.setFillColor(...SLATE);
         doc.roundedRect(TABLE_X, rowY, TABLE_W, HEADER_H, 2, 2, 'F');
@@ -941,7 +935,8 @@ async function downloadPDF() {
         /* Outer table border */
         doc.setDrawColor(...G_MED);
         doc.setLineWidth(0.5);
-        doc.roundedRect(TABLE_X, 64, TABLE_W, rowY - 64, 2, 2, 'S');
+        const tableStartY = PHOTO_Y + PHOTO_H + 8;
+        doc.roundedRect(TABLE_X, tableStartY, TABLE_W, rowY - tableStartY, 2, 2, 'S');
 
         /* Footer */
         const footY = H - 10;
