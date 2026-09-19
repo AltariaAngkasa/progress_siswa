@@ -449,6 +449,92 @@ body::after {
   font-weight: 500;
 }
 
+/* Branch Navigation Tabs */
+.branch-nav-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.branch-tab-btn {
+  padding: 10px 18px;
+  background: rgba(30, 41, 59, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  color: var(--slate-300);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.branch-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.branch-tab-btn.active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(21, 128, 61, 0.35));
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #86efac;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.2);
+}
+
+.branch-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--slate-300);
+  transition: all 0.2s;
+}
+
+.branch-tab-btn.active .branch-pill {
+  background: rgba(34, 197, 94, 0.3);
+  color: #fff;
+}
+
+.branch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.branch-badge.bogor {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #86efac;
+}
+.branch-badge.cibinong {
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+}
+.branch-badge.depok {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #d8b4fe;
+}
+.branch-badge.other {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde047;
+}
+
 /* Action & Filter Bar */
 .filter-bar {
   display: flex;
@@ -1058,6 +1144,35 @@ body::after {
           <div class="stat-label">Kelas Terdata</div>
         </div>
       </div>
+    </div>
+
+    <!-- Branch Navigation Menu -->
+    <div class="branch-nav-tabs">
+      <button class="branch-tab-btn active" id="btn-branch-all" onclick="switchBranchFilter('all')">
+        <span>🏢</span>
+        <span>Semua Cabang</span>
+        <span class="branch-pill" id="badge-all-count">0</span>
+      </button>
+      <button class="branch-tab-btn" id="btn-branch-bogor" onclick="switchBranchFilter('Bogor')">
+        <span>🌲</span>
+        <span>Bogor (BGR)</span>
+        <span class="branch-pill" id="badge-bgr-count">0</span>
+      </button>
+      <button class="branch-tab-btn" id="btn-branch-cibinong" onclick="switchBranchFilter('Cibinong')">
+        <span>🏛️</span>
+        <span>Cibinong (CBN)</span>
+        <span class="branch-pill" id="badge-cbn-count">0</span>
+      </button>
+      <button class="branch-tab-btn" id="btn-branch-depok" onclick="switchBranchFilter('Depok')">
+        <span>🏙️</span>
+        <span>Depok (DPK)</span>
+        <span class="branch-pill" id="badge-dpk-count">0</span>
+      </button>
+      <button class="branch-tab-btn" id="btn-branch-other" onclick="switchBranchFilter('Cabang Lain')">
+        <span>🌐</span>
+        <span>Cabang Lain</span>
+        <span class="branch-pill" id="badge-other-count">0</span>
+      </button>
     </div>
 
     <!-- Filter & Search Bar -->
