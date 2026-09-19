@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<!-- Firebase Cloud Realtime Database SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
 :root {
   --primary: #15803d;
@@ -1022,6 +1026,15 @@ body::after {
 
   <!-- Main Dashboard Content -->
   <main class="main-content">
+    <!-- Cloud Connection Status Banner -->
+    <div id="cloud-status-banner" style="margin-bottom:20px;padding:12px 18px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;font-size:13px;background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(8px);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="cloud-status-icon" style="font-size:16px;">☁️</span>
+        <span id="cloud-status-text" style="color:var(--slate-300);">Memeriksa koneksi Cloud Realtime Database...</span>
+      </div>
+      <span id="cloud-status-tag" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--radius-full);background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);">Checking</span>
+    </div>
+
     <!-- Stat Overview -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -1315,11 +1328,90 @@ function showAuth() {
 function showDashboard() {
   document.getElementById('auth-view').style.display = 'none';
   document.getElementById('dashboard-view').style.display = 'block';
-  loadData();
+  
+  const isCloudConnected = initRealtimeSync();
+  if (!isCloudConnected) {
+    updateCloudStatus(false);
+    loadData();
+  }
 }
 
 // ============================================================
-// DATA HANDLING
+// CLOUD REALTIME DATABASE SYNC (FIREBASE)
+// ============================================================
+function updateCloudStatus(connected) {
+  const icon = document.getElementById('cloud-status-icon');
+  const text = document.getElementById('cloud-status-text');
+  const tag = document.getElementById('cloud-status-tag');
+  const banner = document.getElementById('cloud-status-banner');
+
+  if (connected) {
+    if (icon) icon.textContent = '🟢';
+    if (text) text.innerHTML = '<strong style="color:#86efac;">Cloud Storage Aktif (Firebase Realtime DB):</strong> Data Guru & Admin otomatis tersinkronisasi realtime antar perangkat di Vercel.';
+    if (tag) {
+      tag.textContent = 'Connected';
+      tag.style.background = 'rgba(34,197,94,0.2)';
+      tag.style.color = '#86efac';
+      tag.style.borderColor = 'rgba(34,197,94,0.3)';
+    }
+    if (banner) banner.style.borderColor = 'rgba(34,197,94,0.3)';
+  } else {
+    if (icon) icon.textContent = '⚠️';
+    if (text) text.innerHTML = '<strong style="color:#fcd34d;">Mode Local:</strong> Masukkan konfigurasi Firebase di file <code style="color:#fde047;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">firebase-config.js</code> agar data Guru & Admin sinkron di Vercel.';
+    if (tag) {
+      tag.textContent = 'Local Storage Only';
+      tag.style.background = 'rgba(245,158,11,0.2)';
+      tag.style.color = '#fbbf24';
+      tag.style.borderColor = 'rgba(245,158,11,0.3)';
+    }
+    if (banner) banner.style.borderColor = 'rgba(245,158,11,0.3)';
+  }
+}
+
+function initRealtimeSync() {
+  if (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID') {
+    updateCloudStatus(true);
+
+    // Listen to adminExamQueue in realtime
+    db.ref('adminExamQueue').on('value', snapshot => {
+      const val = snapshot.val() || {};
+      const list = Object.keys(val).map(k => ({ ...val[k], id: k }));
+      
+      // Deduplicate
+      const seen = new Set();
+      currentStudents = [];
+      list.forEach(item => {
+        const key = `${(item.nama || '').trim().toLowerCase()}|${(item.kelas || '').trim().toLowerCase()}|${Number(item.lesson)}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          currentStudents.push(item);
+        }
+      });
+      // Sort newest first
+      currentStudents.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      updateClassFilterOptions();
+      filterStudents();
+      updateStats();
+    }, err => {
+      console.warn('Firebase sync error:', err);
+      updateCloudStatus(false);
+      loadData();
+    });
+
+    // Listen to adminExamCompleted in realtime
+    db.ref('adminExamCompleted').on('value', snapshot => {
+      const val = snapshot.val() || {};
+      const count = Object.keys(val).length;
+      document.getElementById('stat-completed-count').textContent = count;
+    });
+
+    return true;
+  }
+  return false;
+}
+
+// ============================================================
+// DATA HANDLING (LOCAL FALLBACK)
 // ============================================================
 function getStoredQueue() {
   try {
@@ -1367,19 +1459,22 @@ function loadData() {
 }
 
 function updateStats() {
-  const queue = getStoredQueue();
+  const queue = (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID')
+    ? currentStudents
+    : getStoredQueue();
   const completed = getStoredCompleted();
   
   const distinctClasses = new Set(queue.map(s => s.kelas).filter(k => k && k !== '—'));
 
   document.getElementById('stat-pending-count').textContent = queue.length;
-  document.getElementById('stat-completed-count').textContent = completed.length;
   document.getElementById('stat-class-count').textContent = distinctClasses.size;
   document.getElementById('list-counter-badge').textContent = `${queue.length} Siswa`;
 }
 
 function updateClassFilterOptions() {
-  const queue = getStoredQueue();
+  const queue = (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID')
+    ? currentStudents
+    : getStoredQueue();
   const classSelect = document.getElementById('filter-class');
   const selectedVal = classSelect.value;
   
@@ -1499,9 +1594,31 @@ function closeReportModal() {
   activeStudentId = null;
 }
 
-function markReportDone() {
+async function markReportDone() {
   if (!activeStudentId) return;
 
+  const student = currentStudents.find(s => s.id === activeStudentId);
+  if (!student) return;
+
+  // 1. Jika terhubung ke Firebase Realtime Database
+  if (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID') {
+    try {
+      await db.ref('adminExamQueue/' + activeStudentId).remove();
+      const comp = {
+        ...student,
+        reportDone: true,
+        completedAt: new Date().toISOString()
+      };
+      await db.ref('adminExamCompleted/' + activeStudentId).set(comp);
+      showToast(`✓ Report untuk ${student.nama} (${student.kelas}) berhasil diselesaikan!`, 'success');
+      closeReportModal();
+      return;
+    } catch (err) {
+      console.error('Firebase error markReportDone:', err);
+    }
+  }
+
+  // 2. Fallback localStorage
   const queue = getStoredQueue();
   const studentIndex = queue.findIndex(s => s.id === activeStudentId);
 
