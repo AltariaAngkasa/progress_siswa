@@ -865,6 +865,52 @@ function isOverdueLesson(num) {
   return OVERDUE_LESSONS.includes(Number(num));
 }
 
+function parseBranchFromClass(rawKelas) {
+  if (!rawKelas || typeof rawKelas !== 'string') {
+    return { valid: false, error: 'Nama kelas belum diisi!', branch: '', code: '' };
+  }
+  
+  const trimmed = rawKelas.trim().toUpperCase();
+  if (!trimmed) {
+    return { valid: false, error: 'Nama kelas belum diisi!', branch: '', code: '' };
+  }
+
+  const parts = trimmed.split(/[-_\s]+/);
+  const prefix = parts[0];
+
+  const KNOWN_BRANCHES = {
+    'BGR': 'Bogor',
+    'CBN': 'Cibinong',
+    'DPK': 'Depok'
+  };
+
+  if (KNOWN_BRANCHES[prefix]) {
+    return { valid: true, branch: KNOWN_BRANCHES[prefix], code: prefix, fullClass: trimmed };
+  }
+
+  // Jika guru hanya mengetik nama program (misal: "ADP", "ADP-1", "CE-01", "FS-2") tanpa kode cabang:
+  const PROGRAM_PREFIXES = [
+    'ADP', 'CE', 'FS', 'LP', '3D', 'AI', 'CV', 'ML', 'ROB', 'ROBLOX', 'JS', 'PY', 'PYTHON', 'GAME', 'DEV', 'SCRATCH', 'LITTLE', 'ANIMATOR'
+  ];
+
+  if (PROGRAM_PREFIXES.includes(prefix) || parts.length < 2) {
+    return {
+      valid: false,
+      error: 'Kode cabang belum dimasukkan di depan nama kelas!\n\nContoh format yang benar:\n• BGR-ADP-1 (Cabang Bogor)\n• CBN-ADP-1 (Cabang Cibinong)\n• DPK-ADP-1 (Cabang Depok)',
+      branch: '',
+      code: ''
+    };
+  }
+
+  // Kode cabang lainnya (misal JKT, BDG, dll) tetap diizinkan dan masuk kategori "Cabang Lain" di admin
+  return {
+    valid: true,
+    branch: 'Cabang Lain',
+    code: prefix,
+    fullClass: trimmed
+  };
+}
+
 // ============================================================
 // MILESTONE & CALENDAR MODAL LOGIC
 // ============================================================
@@ -1347,9 +1393,12 @@ async function saveToAdminQueue(data) {
   const normKelas = (data.kelas || '').trim().toLowerCase();
   const normLesson = Number(data.lesson);
 
+  const branchInfo = parseBranchFromClass(data.kelas);
   const payload = {
     nama: data.nama,
-    kelas: data.kelas,
+    kelas: branchInfo.fullClass || data.kelas,
+    cabang: data.cabang || branchInfo.branch || 'Cabang Lain',
+    kodeCabang: data.kodeCabang || branchInfo.code || '',
     course: data.course,
     lesson: normLesson,
     criteria: data.criteria,
@@ -1411,7 +1460,21 @@ function generateProgress(idx){
   const courseSelect = document.getElementById('auto-course-' + idx);
   const lessonSelect = document.getElementById('auto-lesson-' + idx);
   const criteriaSelect = document.getElementById('auto-criteria-' + idx);
+  const kelasVal = (document.getElementById('auto-kelas')?.value || '').trim();
   
+  // Validasi Kode Cabang pada Nama Kelas
+  const branchInfo = parseBranchFromClass(kelasVal);
+  if (!branchInfo.valid) {
+    alert('⚠️ PERINGATAN KODE CABANG:\n\n' + branchInfo.error);
+    toast('⚠️ ' + branchInfo.error, 'error');
+    const kInput = document.getElementById('auto-kelas');
+    if (kInput) {
+      kInput.focus();
+      kInput.select();
+    }
+    return;
+  }
+
   const nama = (namaInput ? namaInput.value.trim() : '') || (autoStudents[idx] ? autoStudents[idx].nama : '');
   const course = (courseSelect ? courseSelect.value : '') || (autoStudents[idx] ? autoStudents[idx].course : '');
   const lessonNum = (lessonSelect ? lessonSelect.value : '') || (autoStudents[idx] ? autoStudents[idx].lesson : '');
@@ -1427,18 +1490,19 @@ function generateProgress(idx){
 
   // Tampilkan konfirmasi untuk milestone (8,16,24,32) atau pelindung terlewat (9,17,25)
   if (isMilestone || isOverdue) {
-    const kelas = document.getElementById('auto-kelas')?.value || '—';
     pendingExamIdx = idx;
     pendingExamData = {
       nama,
       course,
       lesson: num,
       criteria,
-      kelas,
+      kelas: branchInfo.fullClass || kelasVal,
+      cabang: branchInfo.branch,
+      kodeCabang: branchInfo.code,
       isOverdue: isOverdue,
       examLesson: isOverdue ? (num - 1) : num
     };
-    showExamConfirmation(nama, course, num, kelas, isOverdue);
+    showExamConfirmation(nama, course, num, branchInfo.fullClass || kelasVal, isOverdue);
     return;
   }
 
