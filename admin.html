@@ -1573,6 +1573,53 @@ function loadData() {
   updateStats();
 }
 
+// ============================================================
+// BRANCH LOGIC & FILTERING
+// ============================================================
+let selectedBranch = 'all';
+
+function parseBranchFromClass(rawKelas) {
+  if (!rawKelas || typeof rawKelas !== 'string') {
+    return { branch: 'Cabang Lain', code: '' };
+  }
+  const trimmed = rawKelas.trim().toUpperCase();
+  const parts = trimmed.split(/[-_\s]+/);
+  const prefix = parts[0];
+
+  const KNOWN_BRANCHES = {
+    'BGR': 'Bogor',
+    'CBN': 'Cibinong',
+    'DPK': 'Depok'
+  };
+
+  if (KNOWN_BRANCHES[prefix]) {
+    return { branch: KNOWN_BRANCHES[prefix], code: prefix };
+  }
+  return { branch: 'Cabang Lain', code: prefix || 'LAIN' };
+}
+
+function switchBranchFilter(branch) {
+  selectedBranch = branch;
+
+  const tabMap = {
+    'all': 'btn-branch-all',
+    'Bogor': 'btn-branch-bogor',
+    'Cibinong': 'btn-branch-cibinong',
+    'Depok': 'btn-branch-depok',
+    'Cabang Lain': 'btn-branch-other'
+  };
+
+  Object.keys(tabMap).forEach(key => {
+    const btn = document.getElementById(tabMap[key]);
+    if (btn) {
+      if (key === branch) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  filterStudents();
+}
+
 function updateStats() {
   const queue = (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID')
     ? currentStudents
@@ -1584,6 +1631,32 @@ function updateStats() {
   document.getElementById('stat-pending-count').textContent = queue.length;
   document.getElementById('stat-class-count').textContent = distinctClasses.size;
   document.getElementById('list-counter-badge').textContent = `${queue.length} Siswa`;
+
+  // Hitung jumlah siswa per cabang
+  let countBgr = 0;
+  let countCbn = 0;
+  let countDpk = 0;
+  let countOther = 0;
+
+  queue.forEach(s => {
+    const br = s.cabang || parseBranchFromClass(s.kelas).branch;
+    if (br === 'Bogor') countBgr++;
+    else if (br === 'Cibinong') countCbn++;
+    else if (br === 'Depok') countDpk++;
+    else countOther++;
+  });
+
+  const bAll = document.getElementById('badge-all-count');
+  const bBgr = document.getElementById('badge-bgr-count');
+  const bCbn = document.getElementById('badge-cbn-count');
+  const bDpk = document.getElementById('badge-dpk-count');
+  const bOth = document.getElementById('badge-other-count');
+
+  if (bAll) bAll.textContent = queue.length;
+  if (bBgr) bBgr.textContent = countBgr;
+  if (bCbn) bCbn.textContent = countCbn;
+  if (bDpk) bDpk.textContent = countDpk;
+  if (bOth) bOth.textContent = countOther;
 }
 
 function updateClassFilterOptions() {
@@ -1611,12 +1684,24 @@ function filterStudents() {
   const selectedLesson = document.getElementById('filter-lesson').value;
   
   const filtered = currentStudents.filter(s => {
+    const studentBranch = s.cabang || parseBranchFromClass(s.kelas).branch;
+    
+    // Filter berdasarkan tab menu cabang
+    let matchBranch = true;
+    if (selectedBranch !== 'all') {
+      if (selectedBranch === 'Cabang Lain') {
+        matchBranch = !['Bogor', 'Cibinong', 'Depok'].includes(studentBranch);
+      } else {
+        matchBranch = (studentBranch === selectedBranch);
+      }
+    }
+
     const matchName = (s.nama || '').toLowerCase().includes(keyword);
     const matchClass = (s.kelas || '').toLowerCase().includes(keyword);
     const matchSelectedClass = !selectedClass || s.kelas === selectedClass;
     const matchLesson = !selectedLesson || String(s.lesson) === selectedLesson;
     
-    return (matchName || matchClass) && matchSelectedClass && matchLesson;
+    return matchBranch && (matchName || matchClass) && matchSelectedClass && matchLesson;
   });
 
   renderStudentList(filtered);
@@ -1627,12 +1712,16 @@ function renderStudentList(students) {
   container.innerHTML = '';
 
   if (!students || students.length === 0) {
+    let emptyBranchMsg = '';
+    if (selectedBranch !== 'all') {
+      emptyBranchMsg = ` di ${selectedBranch}`;
+    }
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">🎉</div>
-        <div class="empty-title">Semua Report Selesai!</div>
+        <div class="empty-title">Tidak Ada Siswa Menunggu Report${emptyBranchMsg}!</div>
         <div class="empty-desc">
-          Tidak ada antrian siswa yang menunggu report exam saat ini. Siswa baru di Lesson 8, 16, 24, atau 32 yang dikonfirmasi sudah exam oleh guru akan otomatis muncul di sini.
+          Semua report untuk kategori ini telah selesai dibuatkan. Siswa baru yang menyelesaikan exam akan otomatis muncul di sini.
         </div>
       </div>
     `;
@@ -1646,6 +1735,21 @@ function renderStudentList(students) {
 
     // Initial avatar letter
     const initial = (s.nama || '?').charAt(0).toUpperCase();
+
+    // Deteksi badge cabang
+    const branchInfo = parseBranchFromClass(s.kelas);
+    const branchName = s.cabang || branchInfo.branch;
+    let branchBadgeHtml = '';
+
+    if (branchName === 'Bogor') {
+      branchBadgeHtml = '<span class="branch-badge bogor">🌲 Bogor</span>';
+    } else if (branchName === 'Cibinong') {
+      branchBadgeHtml = '<span class="branch-badge cibinong">🏛️ Cibinong</span>';
+    } else if (branchName === 'Depok') {
+      branchBadgeHtml = '<span class="branch-badge depok">🏙️ Depok</span>';
+    } else {
+      branchBadgeHtml = `<span class="branch-badge other">🌐 Cabang Lain (${esc(s.kodeCabang || branchInfo.code || 'Lain')})</span>`;
+    }
 
     const lessonBadgeHtml = s.isOverdue
       ? `<div class="lesson-badge" style="background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.4);color:#fca5a5;">⚠️ Lesson ${s.lesson || '—'} (Terlewat)</div>`
@@ -1661,7 +1765,10 @@ function renderStudentList(students) {
       </div>
 
       <div>
-        <span class="class-tag">🏫 ${esc(s.kelas || 'Belum diisi')}</span>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+          ${branchBadgeHtml}
+          <span class="class-tag">🏫 ${esc(s.kelas || 'Belum diisi')}</span>
+        </div>
       </div>
 
       <div>
@@ -1694,7 +1801,9 @@ function openReportModal(id) {
 
   activeStudentId = id;
   document.getElementById('modal-student-name').textContent = student.nama || '—';
-  document.getElementById('modal-student-class').textContent = student.kelas || '—';
+  const branchInfo = parseBranchFromClass(student.kelas);
+  const branchName = student.cabang || branchInfo.branch;
+  document.getElementById('modal-student-class').textContent = `${student.kelas || '—'} · Cabang ${branchName}`;
   document.getElementById('modal-student-course').textContent = student.course || '—';
   document.getElementById('modal-student-lesson').textContent = student.isOverdue
     ? `Lesson ${student.lesson || '—'} (⚠️ Terlewat Exam)`
