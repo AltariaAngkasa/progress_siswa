@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Firebase Cloud Realtime Database SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
 :root{
   --g50:#f0fdf4;--g100:#dcfce7;--g200:#bbf7d0;--g300:#86efac;--g400:#4ade80;
@@ -1338,14 +1342,53 @@ function checkCardMilestone(idx){
 let pendingExamIdx = null;
 let pendingExamData = null;
 
-function saveToAdminQueue(data) {
-  const queue = JSON.parse(localStorage.getItem('adminExamQueue') || '[]');
-  
+async function saveToAdminQueue(data) {
   const normName = (data.nama || '').trim().toLowerCase();
   const normKelas = (data.kelas || '').trim().toLowerCase();
   const normLesson = Number(data.lesson);
 
-  // Anti-duplikasi: nama sama, kelas sama, dan lesson sama tidak boleh double
+  const payload = {
+    nama: data.nama,
+    kelas: data.kelas,
+    course: data.course,
+    lesson: normLesson,
+    criteria: data.criteria,
+    tanggal: document.getElementById('auto-tanggal')?.value || todayVal,
+    reportDone: false,
+    isOverdue: !!data.isOverdue,
+    createdAt: Date.now()
+  };
+
+  // 1. Prioritaskan penyimpanan ke Firebase Realtime Database jika sudah aktif
+  if (typeof db !== 'undefined' && db && isFirebaseReady && firebaseConfig.projectId !== 'YOUR_PROJECT_ID') {
+    try {
+      const snap = await db.ref('adminExamQueue').once('value');
+      const val = snap.val() || {};
+      const list = Object.keys(val).map(k => ({ ...val[k], id: k }));
+
+      // Anti-duplikasi di Firebase
+      const isDuplicate = list.some(item => 
+        (item.nama || '').trim().toLowerCase() === normName &&
+        (item.kelas || '').trim().toLowerCase() === normKelas &&
+        Number(item.lesson) === normLesson
+      );
+
+      if (isDuplicate) {
+        toast('ℹ️ ' + data.nama + ' (' + data.kelas + ') Lesson ' + normLesson + ' sudah ada di antrian Admin!', 'info');
+        return false;
+      }
+
+      const newRef = db.ref('adminExamQueue').push();
+      payload.id = newRef.key;
+      await newRef.set(payload);
+      return true;
+    } catch (err) {
+      console.warn('Firebase error, fallback ke localStorage:', err);
+    }
+  }
+
+  // 2. Fallback ke localStorage jika Firebase belum dikonfigurasi
+  const queue = JSON.parse(localStorage.getItem('adminExamQueue') || '[]');
   const isDuplicate = queue.some(item => 
     (item.nama || '').trim().toLowerCase() === normName &&
     (item.kelas || '').trim().toLowerCase() === normKelas &&
@@ -1357,18 +1400,8 @@ function saveToAdminQueue(data) {
     return false;
   }
 
-  queue.push({
-    id: 'exam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-    nama: data.nama,
-    kelas: data.kelas,
-    course: data.course,
-    lesson: normLesson,
-    criteria: data.criteria,
-    tanggal: document.getElementById('auto-tanggal')?.value || todayVal,
-    reportDone: false,
-    isOverdue: !!data.isOverdue
-  });
-
+  payload.id = 'exam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  queue.push(payload);
   localStorage.setItem('adminExamQueue', JSON.stringify(queue));
   return true;
 }
@@ -1511,7 +1544,7 @@ function closeExamModal() {
   pendingExamData = null;
 }
 
-function confirmExamDone() {
+async function confirmExamDone() {
   if (pendingExamIdx === null || !pendingExamData) return;
   
   if (pendingExamData.isOverdue) {
@@ -1519,7 +1552,7 @@ function confirmExamDone() {
     toast('✓ Siswa sudah exam — tidak perlu masuk antrian admin.', 'info');
   } else {
     // Siswa di Milestone normal (8/16/24/32) SUDAH exam: catat ke antrian admin jika bukan duplikat
-    const saved = saveToAdminQueue({
+    const saved = await saveToAdminQueue({
       nama: pendingExamData.nama,
       kelas: pendingExamData.kelas,
       course: pendingExamData.course,
@@ -1537,13 +1570,13 @@ function confirmExamDone() {
   closeExamModal();
 }
 
-function confirmExamNotDone() {
+async function confirmExamNotDone() {
   if (pendingExamIdx === null || !pendingExamData) return;
   
   if (pendingExamData.isOverdue) {
     // Siswa di Lesson 9/17/25 BELUM exam (terlewat): masukkan ke antrian admin!
     const targetExam = pendingExamData.examLesson;
-    const saved = saveToAdminQueue({
+    const saved = await saveToAdminQueue({
       nama: pendingExamData.nama,
       kelas: pendingExamData.kelas,
       course: pendingExamData.course,
