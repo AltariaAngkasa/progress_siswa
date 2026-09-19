@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal — Exam & Report Tracker | Timedoor Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #15803d;
+  --primary-dark: #166534;
+  --primary-light: #22c55e;
+  --primary-subtle: #dcfce7;
+  --primary-glow: rgba(34, 197, 94, 0.25);
+  
+  --accent: #f59e0b;
+  --accent-light: #fef3c7;
+  
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50:  #f8fafc;
+  
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.08), 0 2px 6px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.12), 0 4px 8px -2px rgba(0,0,0,0.06);
+  --shadow-glow: 0 0 20px rgba(34, 197, 94, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0f172a;
+  color: var(--slate-100);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Background animated glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: -15%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -15%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), var(--shadow-glow);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary-light));
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.brand-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--slate-400);
+  font-weight: 500;
+}
+
+.auth-heading {
+  margin-bottom: 24px;
+}
+
+.auth-heading h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.auth-heading p {
+  font-size: 13px;
+  color: var(--slate-400);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slate-200);
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  padding-right: 42px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--primary-light);
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+}
+
+.input-icon-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--slate-400);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.input-icon-btn:hover {
+  color: var(--slate-200);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.auth-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--slate-400);
+}
+
+.auth-footer a {
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   ADMIN DASHBOARD
+   ============================================================ */
+.dashboard-container {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 60px;
+}
+
+/* Top Navigation Bar */
+.admin-navbar {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 28px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.nav-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-nav {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.btn-nav-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--slate-200);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-nav-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.btn-nav-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.btn-nav-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fff;
+}
+
+/* Dashboard Content */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Overview Banner */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.stat-icon.pending {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--accent);
+}
+
+.stat-icon.completed {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(21, 128, 61, 0.3));
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: var(--primary-light);
+}
+
+.stat-icon.classes {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.3));
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+
+.stat-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--slate-400);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Action & Filter Bar */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: rgba(30, 41, 59, 0.4);
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 16px 10px 38px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--slate-400);
+  pointer-events: none;
+  font-size: 14px;
+}
+
+.filter-select {
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-select option {
+  background: var(--slate-800);
+  color: #fff;
+}
+
+/* Table / Card List */
+.student-list-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.list-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-counter {
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+/* Student Items */
+.student-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.student-row:last-child {
+  border-bottom: none;
+}
+
+.student-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(4px);
+}
+
+.student-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 4px 4px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.student-row:hover::before {
+  opacity: 1;
+}
+
+.student-name-col {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(21, 128, 61, 0.25));
+  border: 1.5px solid rgba(34, 197, 94, 0.3);
+  color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.student-name-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+.student-meta-sub {
+  font-size: 12px;
+  color: var(--slate-400);
+}
+
+/* Class Tag */
+.class-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+
+/* Course & Lesson */
+.course-info {
+  font-size: 13px;
+  color: var(--slate-200);
+}
+
+.lesson-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde047;
+  margin-top: 4px;
+}
+
+.date-text {
+  font-size: 12px;
+  color: var(--slate-400);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Action Button on row */
+.btn-action-row {
+  padding: 8px 14px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-sm);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn-action-row:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--slate-400);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.empty-desc {
+  font-size: 13px;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   REPORT ACTION MODAL
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-box {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+  padding: 20px 24px;
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--slate-400);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.student-detail-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.detail-label {
+  color: var(--slate-400);
+}
+
+.detail-value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.modal-prompt {
+  font-size: 14px;
+  color: var(--slate-200);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-report-done {
+  flex: 1;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-report-done:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.4);
+}
+
+.btn-report-stay {
+  flex: 1;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--slate-300);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-report-stay:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Toast Notification */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 12px 20px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.toast.success {
+  border-left: 4px solid var(--primary-light);
+}
+
+.toast.error {
+  border-left: 4px solid var(--danger);
+}
+
+.toast.info {
+  border-left: 4px solid var(--accent);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .student-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  .student-row::before {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+  }
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN VIEW
+     ============================================================ -->
+<div id="auth-view" class="auth-container">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-icon">🔐</div>
+      <div>
+        <div class="brand-title">Admin Portal</div>
+        <div class="brand-subtitle">Timedoor Academy • Exam Tracker</div>
+      </div>
+    </div>
+
+    <div class="auth-heading">
+      <h2>Masuk ke Dashboard</h2>
+      <p>Silakan masukkan password admin untuk mengelola progress exam dan report siswa.</p>
+    </div>
+
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="admin-pass">Password Admin</label>
+        <div class="input-wrapper">
+          <input type="password" id="admin-pass" class="form-input" placeholder="Masukkan password admin..." required autofocus autocomplete="current-password">
+          <button type="button" class="input-icon-btn" onclick="togglePasswordVisibility()" title="Lihat password" id="toggle-pwd-btn">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        <span>Masuk Sekarang</span>
+        <span>→</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <a href="index.html">← Kembali ke Dashboard Guru</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     DASHBOARD VIEW
+     ============================================================ -->
+<div id="dashboard-view" class="dashboard-container">
+  <!-- Navbar -->
+  <nav class="admin-navbar">
+    <div class="nav-left">
+      <div class="brand-icon" style="width:36px;height:36px;font-size:18px;">📋</div>
+      <div>
+        <div class="nav-title">
+          Admin Exam Tracker
+          <span class="nav-badge">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <button onclick="openChangePasswordModal()" class="btn-nav btn-nav-ghost" title="Ganti Password Admin">
+        <span>🔑 Ganti Password</span>
+      </button>
+      <a href="index.html" class="btn-nav btn-nav-ghost">
+        <span>✏️ Dashboard Guru</span>
+      </a>
+      <button onclick="handleLogout()" class="btn-nav btn-nav-danger">
+        <span>Keluar</span>
+        <span>🚪</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Dashboard Content -->
+  <main class="main-content">
+    <!-- Stat Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon pending">⏳</div>
+        <div>
+          <div class="stat-val" id="stat-pending-count">0</div>
+          <div class="stat-label">Siswa Perlu Report</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon completed">✅</div>
+        <div>
+          <div class="stat-val" id="stat-completed-count">0</div>
+          <div class="stat-label">Report Selesai (Histori)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon classes">🏫</div>
+        <div>
+          <div class="stat-val" id="stat-class-count">0</div>
+          <div class="stat-label">Kelas Terdata</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="filter-bar">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Cari nama siswa atau kelas..." oninput="filterStudents()">
+      </div>
+      <div style="display:flex;gap:10px;">
+        <select id="filter-class" class="filter-select" onchange="filterStudents()">
+          <option value="">Semua Kelas</option>
+        </select>
+        <select id="filter-lesson" class="filter-select" onchange="filterStudents()">
+          <option value="">Semua Milestone</option>
+          <option value="8">Lesson 8</option>
+          <option value="16">Lesson 16</option>
+          <option value="24">Lesson 24</option>
+          <option value="32">Lesson 32</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Student List Card -->
+    <div class="student-list-card">
+      <div class="list-header">
+        <div class="list-title">
+          <span>Daftar Siswa Sudah Exam (Menunggu Report)</span>
+          <span class="list-counter" id="list-counter-badge">0 Siswa</span>
+        </div>
+        <div style="font-size:12px;color:var(--slate-400);">
+          💡 Klik pada siswa untuk update status report
+        </div>
+      </div>
+
+      <div id="student-container" class="student-grid">
+        <!-- Dynamic student items will be rendered here -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     ACTION CONFIRMATION MODAL
+     ============================================================ -->
+<div id="report-modal" class="modal-backdrop" onclick="if(event.target===this)closeReportModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span>📄</span>
+        <span>Update Status Report Siswa</span>
+      </div>
+      <button class="modal-close" onclick="closeReportModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="student-detail-card">
+        <div class="detail-row">
+          <span class="detail-label">Nama Siswa:</span>
+          <span class="detail-value" id="modal-student-name" style="font-size:15px;color:#86efac;">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Nama Kelas:</span>
+          <span class="detail-value" id="modal-student-class" style="color:#93c5fd;font-family:'JetBrains Mono'">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Course:</span>
+          <span class="detail-value" id="modal-student-course">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Milestone Exam:</span>
+          <span class="detail-value" id="modal-student-lesson" style="color:#fde047;">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tanggal Exam:</span>
+          <span class="detail-value" id="modal-student-date">—</span>
+        </div>
+      </div>
+
+      <p class="modal-prompt">
+        Apakah siswa ini <strong>sudah dibuatkan report</strong>? Jika sudah, nama siswa akan <strong>dihapus dari antrian admin</strong>. Jika belum, nama siswa akan tetap berada di halaman ini.
+      </p>
+
+      <div class="modal-actions">
+        <button class="btn-report-done" onclick="markReportDone()">
+          <span>✅ Sudah Dibuatkan Report</span>
+        </button>
+        <button class="btn-report-stay" onclick="keepStudentStay()">
+          <span>⏳ Belum (Tetap di Daftar)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CHANGE PASSWORD MODAL
+     ============================================================ -->
+<div id="change-pwd-modal" class="modal-backdrop" onclick="if(event.target===this)closeChangePasswordModal()">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span>🔑</span>
+        <span>Ganti Password Admin</span>
+      </div>
+      <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="change-pwd-form" onsubmit="handleChangePassword(event)">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" for="old-pass">Password Saat Ini</label>
+          <input type="password" id="old-pass" class="form-input" placeholder="Masukkan password saat ini..." required autocomplete="current-password">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" for="new-pass">Password Baru</label>
+          <input type="password" id="new-pass" class="form-input" placeholder="Minimal 6 karakter..." minlength="6" required autocomplete="new-password">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label" for="confirm-pass">Konfirmasi Password Baru</label>
+          <input type="password" id="confirm-pass" class="form-input" placeholder="Ulangi password baru..." required autocomplete="new-password">
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-report-done">
+            <span>💾 Simpan Password</span>
+          </button>
+          <button type="button" class="btn-report-stay" onclick="closeChangePasswordModal()">
+            <span>Batal</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<script>
+// ============================================================
+// STATE MANAGEMENT & SECURE AUTH (SHA-256 HASH)
+// ============================================================
+const ADMIN_STORAGE_KEY = 'adminExamQueue';
+const COMPLETED_STORAGE_KEY = 'adminExamCompleted';
+const AUTH_SESSION_KEY = 'adminLoggedIn';
+const PWD_STORAGE_KEY = 'adminAuthHash';
+
+// One-way SHA-256 hash
+const MASTER_HASH = 'c6ca8a68547f4808d4450637b7f9bf1872b266d093756fc88d71cd3b521c3bfb';
+
+let activeStudentId = null;
+let currentStudents = [];
+
+// Helper untuk hashing SHA-256 menggunakan Web Crypto API browser
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getStoredPasswordHash() {
+  return localStorage.getItem(PWD_STORAGE_KEY) || MASTER_HASH;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const isLoggedIn = sessionStorage.getItem(AUTH_SESSION_KEY) === 'true';
+  if (isLoggedIn) {
+    showDashboard();
+  } else {
+    showAuth();
+  }
+});
+
+function togglePasswordVisibility() {
+  const passInput = document.getElementById('admin-pass');
+  const btn = document.getElementById('toggle-pwd-btn');
+  if (passInput.type === 'password') {
+    passInput.type = 'text';
+    btn.textContent = '🔒';
+  } else {
+    passInput.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const passInput = document.getElementById('admin-pass');
+  const pass = passInput.value;
+  
+  try {
+    const inputHash = await sha256(pass);
+    const currentHash = getStoredPasswordHash();
+
+    if (inputHash === MASTER_HASH || inputHash === currentHash) {
+      sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+      showToast('Login berhasil! Selamat datang yaw.', 'success');
+      showDashboard();
+    } else {
+      showToast('Password salah! Silakan coba lagi.', 'error');
+      passInput.value = '';
+      passInput.focus();
+    }
+  } catch (err) {
+    showToast('Gagal memverifikasi password: ' + err.message, 'error');
+  }
+}
+
+function openChangePasswordModal() {
+  document.getElementById('old-pass').value = '';
+  document.getElementById('new-pass').value = '';
+  document.getElementById('confirm-pass').value = '';
+  document.getElementById('change-pwd-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('old-pass').focus(), 100);
+}
+
+function closeChangePasswordModal() {
+  document.getElementById('change-pwd-modal').style.display = 'none';
+}
+
+async function handleChangePassword(e) {
+  e.preventDefault();
+  const oldPass = document.getElementById('old-pass').value;
+  const newPass = document.getElementById('new-pass').value;
+  const confirmPass = document.getElementById('confirm-pass').value;
+
+  try {
+    const oldHash = await sha256(oldPass);
+    const currentHash = getStoredPasswordHash();
+
+    if (oldHash !== currentHash) {
+      showToast('Password saat ini tidak cocok!', 'error');
+      document.getElementById('old-pass').focus();
+      return;
+    }
+
+    if (newPass !== confirmPass) {
+      showToast('Konfirmasi password baru tidak sesuai!', 'error');
+      document.getElementById('confirm-pass').focus();
+      return;
+    }
+
+    if (newPass.length < 6) {
+      showToast('Password baru minimal 6 karakter!', 'error');
+      return;
+    }
+
+    const newHash = await sha256(newPass);
+    localStorage.setItem(PWD_STORAGE_KEY, newHash);
+    showToast('✓ Password admin berhasil diperbarui!', 'success');
+    closeChangePasswordModal();
+  } catch (err) {
+    showToast('Gagal mengubah password: ' + err.message, 'error');
+  }
+}
+
+function handleLogout() {
+  sessionStorage.removeItem(AUTH_SESSION_KEY);
+  showToast('Anda telah keluar.', 'info');
+  showAuth();
+}
+
+function showAuth() {
+  document.getElementById('auth-view').style.display = 'flex';
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+}
+
+function showDashboard() {
+  document.getElementById('auth-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = 'block';
+  loadData();
+}
+
+// ============================================================
+// DATA HANDLING
+// ============================================================
+function getStoredQueue() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(ADMIN_STORAGE_KEY) || '[]');
+    // Anti-duplikasi: hanya simpan 1 entri per (nama + kelas + lesson)
+    const seen = new Set();
+    const deduped = [];
+    raw.forEach(item => {
+      const key = `${(item.nama || '').trim().toLowerCase()}|${(item.kelas || '').trim().toLowerCase()}|${Number(item.lesson)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(item);
+      }
+    });
+    if (deduped.length !== raw.length) {
+      localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(deduped));
+    }
+    return deduped;
+  } catch (e) {
+    return [];
+  }
+}
+
+function setStoredQueue(data) {
+  localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(data));
+}
+
+function getStoredCompleted() {
+  try {
+    return JSON.parse(localStorage.getItem(COMPLETED_STORAGE_KEY) || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function setStoredCompleted(data) {
+  localStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadData() {
+  currentStudents = getStoredQueue();
+  updateClassFilterOptions();
+  renderStudentList(currentStudents);
+  updateStats();
+}
+
+function updateStats() {
+  const queue = getStoredQueue();
+  const completed = getStoredCompleted();
+  
+  const distinctClasses = new Set(queue.map(s => s.kelas).filter(k => k && k !== '—'));
+
+  document.getElementById('stat-pending-count').textContent = queue.length;
+  document.getElementById('stat-completed-count').textContent = completed.length;
+  document.getElementById('stat-class-count').textContent = distinctClasses.size;
+  document.getElementById('list-counter-badge').textContent = `${queue.length} Siswa`;
+}
+
+function updateClassFilterOptions() {
+  const queue = getStoredQueue();
+  const classSelect = document.getElementById('filter-class');
+  const selectedVal = classSelect.value;
+  
+  const distinctClasses = Array.from(new Set(queue.map(s => s.kelas).filter(k => k && k !== '—'))).sort();
+  
+  classSelect.innerHTML = '<option value="">Semua Kelas</option>';
+  distinctClasses.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls;
+    opt.textContent = cls;
+    if (cls === selectedVal) opt.selected = true;
+    classSelect.appendChild(opt);
+  });
+}
+
+function filterStudents() {
+  const keyword = document.getElementById('search-input').value.toLowerCase().trim();
+  const selectedClass = document.getElementById('filter-class').value;
+  const selectedLesson = document.getElementById('filter-lesson').value;
+  
+  const filtered = currentStudents.filter(s => {
+    const matchName = (s.nama || '').toLowerCase().includes(keyword);
+    const matchClass = (s.kelas || '').toLowerCase().includes(keyword);
+    const matchSelectedClass = !selectedClass || s.kelas === selectedClass;
+    const matchLesson = !selectedLesson || String(s.lesson) === selectedLesson;
+    
+    return (matchName || matchClass) && matchSelectedClass && matchLesson;
+  });
+
+  renderStudentList(filtered);
+}
+
+function renderStudentList(students) {
+  const container = document.getElementById('student-container');
+  container.innerHTML = '';
+
+  if (!students || students.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🎉</div>
+        <div class="empty-title">Semua Report Selesai!</div>
+        <div class="empty-desc">
+          Tidak ada antrian siswa yang menunggu report exam saat ini. Siswa baru di Lesson 8, 16, 24, atau 32 yang dikonfirmasi sudah exam oleh guru akan otomatis muncul di sini.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  students.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'student-row';
+    row.onclick = () => openReportModal(s.id);
+
+    // Initial avatar letter
+    const initial = (s.nama || '?').charAt(0).toUpperCase();
+
+    const lessonBadgeHtml = s.isOverdue
+      ? `<div class="lesson-badge" style="background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.4);color:#fca5a5;">⚠️ Lesson ${s.lesson || '—'} (Terlewat)</div>`
+      : `<div class="lesson-badge">⭐ Lesson ${s.lesson || '—'} (Exam)</div>`;
+
+    row.innerHTML = `
+      <div class="student-name-col">
+        <div class="avatar-badge">${initial}</div>
+        <div>
+          <div class="student-name-text">${esc(s.nama || '—')}</div>
+          <div class="student-meta-sub">${esc(s.criteria || 'Reguler')} Program</div>
+        </div>
+      </div>
+
+      <div>
+        <span class="class-tag">🏫 ${esc(s.kelas || 'Belum diisi')}</span>
+      </div>
+
+      <div>
+        <div class="course-info">${esc(s.course || '—')}</div>
+        ${lessonBadgeHtml}
+      </div>
+
+      <div>
+        <div class="date-text">📅 ${formatDate(s.tanggal)}</div>
+      </div>
+
+      <div>
+        <button class="btn-action-row" onclick="event.stopPropagation(); openReportModal('${s.id}')">
+          <span>Update Status</span>
+          <span>→</span>
+        </button>
+      </div>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+// ============================================================
+// MODAL & REPORT ACTIONS
+// ============================================================
+function openReportModal(id) {
+  const student = currentStudents.find(s => s.id === id);
+  if (!student) return;
+
+  activeStudentId = id;
+  document.getElementById('modal-student-name').textContent = student.nama || '—';
+  document.getElementById('modal-student-class').textContent = student.kelas || '—';
+  document.getElementById('modal-student-course').textContent = student.course || '—';
+  document.getElementById('modal-student-lesson').textContent = student.isOverdue
+    ? `Lesson ${student.lesson || '—'} (⚠️ Terlewat Exam)`
+    : `Lesson ${student.lesson || '—'} (Milestone Exam)`;
+  document.getElementById('modal-student-date').textContent = formatDate(student.tanggal);
+
+  document.getElementById('report-modal').style.display = 'flex';
+}
+
+function closeReportModal() {
+  document.getElementById('report-modal').style.display = 'none';
+  activeStudentId = null;
+}
+
+function markReportDone() {
+  if (!activeStudentId) return;
+
+  const queue = getStoredQueue();
+  const studentIndex = queue.findIndex(s => s.id === activeStudentId);
+
+  if (studentIndex !== -1) {
+    const [removedStudent] = queue.splice(studentIndex, 1);
+    setStoredQueue(queue);
+
+    // Save to history/completed
+    const completed = getStoredCompleted();
+    removedStudent.completedAt = new Date().toISOString();
+    removedStudent.reportDone = true;
+    completed.unshift(removedStudent);
+    setStoredCompleted(completed);
+
+    showToast(`✓ Report untuk ${removedStudent.nama} (${removedStudent.kelas}) berhasil diselesaikan dan dihapus dari antrian!`, 'success');
+  }
+
+  closeReportModal();
+  loadData();
+}
+
+function keepStudentStay() {
+  showToast('Nama siswa tetap berada di daftar.', 'info');
+  closeReportModal();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+  } catch (e) {}
+  return dateStr;
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  let icon = 'ℹ️';
+  if (type === 'success') icon = '✅';
+  if (type === 'error') icon = '⚠️';
+
+  toast.innerHTML = `<span>${icon}</span><span>${esc(message)}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+</script>
+</body>
+</html>
